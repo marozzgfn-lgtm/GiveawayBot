@@ -1,6 +1,11 @@
 const { Telegraf, Markup } = require('telegraf');
+const express = require('express');
 
-const bot = new Telegraf('8791729528:AAHcXhuGUIwPlkgcfLKGSpbQIrRwrBeqphU');
+const bot = new Telegraf('8791729528:AAGyRutZ8uGbT8aJ_uEl9Lw3B-ffLIn-r48');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
 
 let giveaway = {
     active: false,
@@ -24,9 +29,7 @@ bot.command('help', async (ctx) => {
             `🔹 /roulette - Ավարտել ռուլետկայով`,
             { parse_mode: 'Markdown' }
         );
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) {}
 });
 
 bot.command('create', async (ctx) => {
@@ -61,9 +64,7 @@ bot.command('create', async (ctx) => {
                 [Markup.button.callback('🔍 Ստուգել', 'check_status')]
             ])
         });
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) {}
 });
 
 bot.action('join_giveaway', async (ctx) => {
@@ -94,9 +95,7 @@ bot.action('join_giveaway', async (ctx) => {
         } catch (error) {
             await ctx.answerCbQuery('⚠️ Սխալ: Համոզվիր, որ բոտն ալիքի ադմին է:', { show_alert: true });
         }
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) {}
 });
 
 bot.action('check_status', async (ctx) => {
@@ -114,9 +113,7 @@ bot.action('check_status', async (ctx) => {
         } else {
             await ctx.answerCbQuery('❌ Դու դեռ չես մասնակցում:', { show_alert: true });
         }
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) {}
 });
 
 bot.command('participants', async (ctx) => {
@@ -135,9 +132,7 @@ bot.command('participants', async (ctx) => {
         if (ctx.chat.type !== 'private') {
             await ctx.reply('✅ Մասնակիցների ցանկն ուղարկվեց անձնական չաթ (DM):');
         }
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) {}
 });
 
 bot.command('endgiveaway', async (ctx) => {
@@ -166,51 +161,17 @@ bot.command('endgiveaway', async (ctx) => {
             caption: `🏁 **ԱՎԱՐՏՎԵՑ** 🏁\n\n🎁 **Մրցանակ՝** ${giveaway.prize}\n\n✨ **Հաղթողներ՝**\n${winnersList}`,
             parse_mode: 'Markdown'
         });
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) {}
 });
 
-bot.command('roulette', async (ctx) => {
-    try {
-        if (!giveaway.active) {
-            return ctx.reply('❌ Ակտիվ խաղարկություն չկա:');
-        }
-
-        const participantsArr = Array.from(giveaway.participants).map(p => JSON.parse(p));
-        if (participantsArr.length === 0) {
-            giveaway.active = false;
-            return ctx.reply('😔 Մասնակիցներ չկան:');
-        }
-
-        await ctx.replyWithAnimation(ROULETTE_GIF, {
-            caption: `🎡 **Ռուլետկան պտտվում է...**`,
-            parse_mode: 'Markdown'
-        });
-
-        await new Promise(resolve => setTimeout(resolve, 4000));
-
-        const winners = [];
-        const count = Math.min(giveaway.winnersCount, participantsArr.length);
-        for (let i = 0; i < count; i++) {
-            const randomIndex = Math.floor(Math.random() * participantsArr.length);
-            winners.push(participantsArr.splice(randomIndex, 1)[0]);
-        }
-
-        giveaway.active = false;
-        let winnersList = winners.map((w, index) => `🏆 ${index + 1}. ${w.name}`).join('\n');
-
-        await ctx.replyWithAnimation(WINNER_GIF, {
-            caption: `🏁 **ՌՈՒԼԵՏԿԱՅԻ ԱՐԴՅՈՒՆՔ** 🏁\n\n🎁 **Մրցանակ՝** ${giveaway.prize}\n\n✨ **Հաղթողներ՝**\n${winnersList}`,
-            parse_mode: 'Markdown'
-        });
-    } catch (e) {
-        console.error(e);
-    }
+app.get('/', (req, res) => {
+    res.send('Bot is running!');
 });
 
-bot.launch().then(() => {
-    console.log('Bot started successfully');
-}).catch((err) => {
-    console.error('Failed to start bot:', err);
+app.use(bot.webhookCallback('/telegram-webhook'));
+
+bot.telegram.setWebhook(`https://${process.env.RENDER_EXTERNAL_HOSTNAME}/telegram-webhook`).catch(() => {});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
