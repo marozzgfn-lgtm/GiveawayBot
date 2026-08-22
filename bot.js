@@ -1,6 +1,6 @@
 const { Telegraf, Markup } = require('telegraf');
 
-const bot = new Telegraf('YOUR_BOT_TOKEN');
+const bot = new Telegraf('8791729528:AAHcXhuGUIwPlkgcfLKGSpbQIrRwrBeqphU');
 
 let giveaway = {
     active: false,
