@@ -1,6 +1,6 @@
 const { Telegraf, Markup } = require('telegraf');
 
-const bot = new Telegraf('8791729528:AAHcXhuGUIwPlkgcfLKGSpbQIrRwrBeqphU');
+const bot = new Telegraf('YOUR_BOT_TOKEN');
 
 let giveaway = {
     active: false,
@@ -15,21 +15,10 @@ const ROULETTE_GIF = 'https://media3.giphy.com/media/3o7TKSjRrfIPjeiByM/giphy.gi
 const WINNER_GIF = 'https://media4.giphy.com/media/l0HlRnAWXxn0MhOBK/giphy.gif';
 
 async function checkAdmin(ctx) {
-    if (ctx.chat.type === 'private') return true;
-    try {
-        const member = await ctx.telegram.getChatMember(ctx.chat.id, ctx.from.id);
-        return ['administrator', 'creator'].includes(member.status);
-    } catch (e) {
-        return false;
-    }
+    return true; 
 }
 
 bot.command('help', async (ctx) => {
-    const isAdmin = await checkAdmin(ctx);
-    if (!isAdmin) {
-        return ctx.reply('❌ Այս հրամանը նախատեսված է միայն ադմինների համար:');
-    }
-
     ctx.reply(
         `🤖 **ԱԴՄԻՆԻ ՀՐԱՄԱՆՆԵՐ** 🤖\n\n` +
         `🔹 /create - Ստեղծել խաղարկություն\n` +
@@ -41,9 +30,7 @@ bot.command('help', async (ctx) => {
 });
 
 bot.command('create', async (ctx) => {
-    if (!(await checkAdmin(ctx))) {
-        return ctx.reply('❌ Միայն ադմինների համար:');
-    }
+    if (!(await checkAdmin(ctx))) return;
 
     const args = ctx.message.text.split(' ').slice(1);
     if (args.length < 3) {
@@ -123,9 +110,7 @@ bot.action('check_status', (ctx) => {
 });
 
 bot.command('participants', async (ctx) => {
-    if (!(await checkAdmin(ctx))) {
-        return ctx.reply('❌ Միայն ադմինների համար:');
-    }
+    if (!(await checkAdmin(ctx))) return;
 
     if (!giveaway.active) {
         return ctx.reply('❌ Ակտիվ խաղարկություն չկա:');
@@ -144,9 +129,7 @@ bot.command('participants', async (ctx) => {
 });
 
 bot.command('endgiveaway', async (ctx) => {
-    if (!(await checkAdmin(ctx))) {
-        return ctx.reply('❌ Միայն ադմինների համար:');
-    }
+    if (!(await checkAdmin(ctx))) return;
 
     if (!giveaway.active) {
         return ctx.reply('❌ Ակտիվ խաղարկություն չկա:');
@@ -175,9 +158,7 @@ bot.command('endgiveaway', async (ctx) => {
 });
 
 bot.command('roulette', async (ctx) => {
-    if (!(await checkAdmin(ctx))) {
-        return ctx.reply('❌ Միայն ադմինների համար:');
-    }
+    if (!(await checkAdmin(ctx))) return;
 
     if (!giveaway.active) {
         return ctx.reply('❌ Ակտիվ խաղարկություն չկա:');
