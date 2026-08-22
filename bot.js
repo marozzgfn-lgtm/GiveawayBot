@@ -11,7 +11,7 @@ let giveaway = {
 };
 
 const GIVEAWAY_GIF = 'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif';
-const WINNER_GIF = 'https://media.giphy.com/media/l0HlRnAWXxn0MhOBK/giphy.gif';
+const WINNER_GIF = 'https://media.giphy.com/media/3o7527pa7qs9kCG78A/giphy.gif';
 
 bot.command('help', (ctx) => {
     ctx.reply(
@@ -87,7 +87,7 @@ bot.action('join_giveaway', async (ctx) => {
 
 bot.action('check_status', (ctx) => {
     if (!giveaway.active) {
-        return ctx.answerCbQuery('❌ Այս պահին ակտիվ խաղարկություն չկա:', { show_alert: true });
+        return ctx.answerCbQuery('❌ Ակտիվ խաղարկություն չկա:', { show_alert: true });
     }
 
     const userId = ctx.from.id;
