@@ -10,8 +10,8 @@ let giveaway = {
     participants: new Set()
 };
 
-const GIVEAWAY_GIF = 'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif';
-const WINNER_GIF = 'https://media.giphy.com/media/3o7527pa7qs9kCG78A/giphy.gif';
+const GIVEAWAY_GIF = 'https://media2.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif';
+const WINNER_GIF = 'https://media4.giphy.com/media/l0HlRnAWXxn0MhOBK/giphy.gif';
 
 bot.command('help', (ctx) => {
     ctx.reply(
