@@ -1,11 +1,6 @@
 const { Telegraf, Markup } = require('telegraf');
-const express = require('express');
 
-const bot = new Telegraf('8791729528:AAGyRutZ8uGbT8aJ_uEl9Lw3B-ffLIn-r48');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
+const bot = new Telegraf('8791729528:AAEipRZR1DxzXYWGilDwyMOXH1mCGh3F0C8');
 
 let giveaway = {
     active: false,
@@ -164,14 +159,44 @@ bot.command('endgiveaway', async (ctx) => {
     } catch (e) {}
 });
 
-app.get('/', (req, res) => {
-    res.send('Bot is running!');
+bot.command('roulette', async (ctx) => {
+    try {
+        if (!giveaway.active) {
+            return ctx.reply('❌ Ակտիվ խաղարկություն չկա:');
+        }
+
+        const participantsArr = Array.from(giveaway.participants).map(p => JSON.parse(p));
+        if (participantsArr.length === 0) {
+            giveaway.active = false;
+            return ctx.reply('😔 Մասնակիցներ չկան:');
+        }
+
+        await ctx.replyWithAnimation(ROULETTE_GIF, {
+            caption: `🎡 **Ռուլետկան պտտվում է...**`,
+            parse_mode: 'Markdown'
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 4000));
+
+        const winners = [];
+        const count = Math.min(giveaway.winnersCount, participantsArr.length);
+        for (let i = 0; i < count; i++) {
+            const randomIndex = Math.floor(Math.random() * participantsArr.length);
+            winners.push(participantsArr.splice(randomIndex, 1)[0]);
+        }
+
+        giveaway.active = false;
+        let winnersList = winners.map((w, index) => `🏆 ${index + 1}. ${w.name}`).join('\n');
+
+        await ctx.replyWithAnimation(WINNER_GIF, {
+            caption: `🏁 **ՌՈՒԼԵՏԿԱՅԻ ԱՐԴՅՈՒՆՔ** 🏁\n\n🎁 **Մրցանակ՝** ${giveaway.prize}\n\n✨ **Հաղթողներ՝**\n${winnersList}`,
+            parse_mode: 'Markdown'
+        });
+    } catch (e) {}
 });
 
-app.use(bot.webhookCallback('/telegram-webhook'));
-
-bot.telegram.setWebhook(`https://${process.env.RENDER_EXTERNAL_HOSTNAME}/telegram-webhook`).catch(() => {});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+bot.launch().then(() => {
+    console.log('Bot started successfully');
+}).catch((err) => {
+    console.error('Failed to start bot:', err);
 });
